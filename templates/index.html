@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather & News Aggregator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #a8e6cf, #dcedc1);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        h1 {
+            font-family: 'Georgia', serif;
+            font-size: 3rem;
+            color: #2c3e50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .options {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .options button {
+            padding: 15px 30px;
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .options button:hover {
+            background-color: #ff3b2f;
+        }
+
+        .weather, .news {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: none; /* Hide by default */
+        }
+
+        .weather.active, .news.active {
+            display: block; /* Show when active */
+        }
+
+        .weather {
+            background: linear-gradient(135deg, #a8e6cf, #dcedc1);
+        }
+
+        .news {
+            background: linear-gradient(135deg, #ffd3b6, #ffaaa5);
+        }
+
+        h2 {
+            font-family: 'Georgia', serif;
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .article {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .article h3 {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .article p {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .article a {
+            color: #ff6f61;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .article a:hover {
+            text-decoration: underline;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 70%;
+            margin-right: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #ff3b2f;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .error-message {
+            color: #ff3b2f;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Weather & News Aggregator</h1>
+    <div class="options">
+        <form method="POST">
+            <button type="submit" name="select_weather">Check Weather</button>
+            <button type="submit" name="select_news">Check News</button>
+        </form>
+    </div>
+
+    <!-- Weather Section -->
+    <div class="weather {% if selected_section == 'weather' %}active{% endif %}">
+        <h2>Weather</h2>
+        <form method="POST">
+            <input type="text" name="city" placeholder="Enter city name" required>
+            <button type="submit" name="weather_search">Search</button>
+        </form>
+        {% if weather_data %}
+            <h3>{{ weather_data.name }}, {{ weather_data.sys.country }}</h3>
+            <p>Temperature: {{ weather_data.main.temp }}°C</p>
+            <p>Weather: {{ weather_data.weather[0].description }}</p>
+            <p>Humidity: {{ weather_data.main.humidity }}%</p>
+            <p>Wind Speed: {{ weather_data.wind.speed }} m/s</p>
+        {% elif city %}
+            <p class="error-message">Weather data could not be fetched. Please check the city name and try again.</p>
+        {% else %}
+            <p>Enter a city to see the weather.</p>
+        {% endif %}
+    </div>
+
+    <!-- News Section -->
+    <div class="news {% if selected_section == 'news' %}active{% endif %}">
+        <h2>News</h2>
+        <form method="POST">
+            <input type="text" name="news_query" placeholder="Enter keyword or category" required>
+            <button type="submit" name="news_search">Search</button>
+        </form>
+        {% if news_data %}
+            {% for article in news_data %}
+                <div class="article">
+                    <h3>{{ article.title }}</h3>
+                    <p>{{ article.description }}</p>
+                    <a href="{{ article.url }}" target="_blank">Read more</a>
+                </div>
+            {% endfor %}
+        {% elif news_searched %}
+            <p>No news found. Try a different keyword.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
